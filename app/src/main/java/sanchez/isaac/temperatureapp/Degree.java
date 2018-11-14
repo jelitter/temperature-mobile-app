@@ -15,7 +15,7 @@ public class Degree {
         return celsius;
     }
     public String getCelsiusToString() {
-        return Double.toString(celsius);
+        return Double.toString(Math.round(celsius * 100d) / 100d);
     }
 
     public void setCelsius(double celsius) {
@@ -28,7 +28,7 @@ public class Degree {
         return fahrenheit;
     }
     public String getFahrenheitToString() {
-        return Double.toString(fahrenheit);
+        return Double.toString(Math.round(fahrenheit * 100d) / 100d);
     }
 
     public void setFahrenheit(double fahrenheit) {
@@ -41,7 +41,7 @@ public class Degree {
         return kelvin;
     }
     public String getKelvinToString() {
-        return Double.toString(kelvin);
+        return Double.toString(Math.round(kelvin * 100d) / 100d);
     }
 
     public void setKelvin(double kelvin) {
