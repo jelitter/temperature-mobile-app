@@ -1,4 +1,6 @@
 package sanchez.isaac.temperatureapp;
+import android.content.Intent;
+import android.support.annotation.ColorInt;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -13,7 +15,8 @@ public class MainActivity extends AppCompatActivity {
     private Degree temp;
     EditText celsius, fahrenheit, kelvin;
     EditText lastFocusedField;
-    Button buttonUp, buttonDown;
+    Button buttonUp, buttonDown, buttonShare;
+
 
 
     @Override
@@ -30,16 +33,33 @@ public class MainActivity extends AppCompatActivity {
 
         buttonUp = findViewById(R.id.buttonUp);
         buttonDown = findViewById(R.id.buttonDown);
+        buttonShare = findViewById(R.id.buttonShare);
 
         // Starting at 0 Celsius degrees
         temp.setCelsius(0);
         refreshFields();
         lastFocusedField = celsius;
+        buttonUp.setText("👆 C");
+        buttonUp.setBackgroundColor(0x88FF0000);  // argb
+        buttonDown.setText("👇 C");
+        buttonDown.setBackgroundColor(0x880044AA);  // argb
+
 
         setListeners();
     }
 
     public void setListeners() {
+
+        this.buttonShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent shareIntent = new Intent(getApplicationContext(), ShareActivity.class);
+                shareIntent.putExtra("celsius", temp.getCelsiusToString());
+                shareIntent.putExtra("fahrenheit", temp.getFahrenheitToString());
+                shareIntent.putExtra("kelvin", temp.getKelvinToString());
+                startActivity(shareIntent);
+            }
+        });
 
         this.buttonUp.setOnClickListener(createSpinnerListener(1));
         this.buttonDown.setOnClickListener(createSpinnerListener(-1));
@@ -49,18 +69,24 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                     lastFocusedField = celsius;
+                    buttonUp.setText(R.string.up_celsius);
+                    buttonDown.setText(R.string.down_celsius);
             }
         });
         fahrenheit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                     lastFocusedField = fahrenheit;
+                    buttonUp.setText(R.string.up_fahrenheit);
+                    buttonDown.setText(R.string.down_fahrenheit);
             }
         });
         kelvin.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                     lastFocusedField = kelvin;
+                    buttonUp.setText(R.string.up_kelvin);
+                    buttonDown.setText(R.string.down_kelvin);
             }
         });
 
@@ -151,11 +177,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+
     private View.OnClickListener createSpinnerListener(final int increment) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                
+
                 if (lastFocusedField ==  fahrenheit) {
                     temp.setFahrenheit(temp.getFahrenheit()+increment);
                 }

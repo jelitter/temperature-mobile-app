@@ -1,3 +1,9 @@
 <resources>
-    <string name="app_name">Temperature App</string>
+    <string name="app_name">Isaac\'s Temperature Converter</string>
+    <string name="up_celsius">👆 C</string>
+    <string name="up_fahrenheit">👆 F</string>
+    <string name="up_kelvin">👆 K</string>
+    <string name="down_celsius">👇 C</string>
+    <string name="down_fahrenheit">👇 F</string>
+    <string name="down_kelvin">👇 K</string>
 </resources>
