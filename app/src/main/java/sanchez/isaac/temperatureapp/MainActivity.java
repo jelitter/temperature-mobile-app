@@ -1,6 +1,5 @@
 package sanchez.isaac.temperatureapp;
 import android.content.Intent;
-import android.support.annotation.ColorInt;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -8,22 +7,19 @@ import android.text.TextWatcher;
 import android.widget.Button;
 import android.widget.EditText;
 import android.view.View;
+import android.widget.Toast;
 
 
 public class MainActivity extends AppCompatActivity {
 
     private Degree temp;
     EditText celsius, fahrenheit, kelvin;
-    EditText lastFocusedField;
     Button buttonUp, buttonDown, buttonShare;
 
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        temp = new Degree(0);
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -35,16 +31,25 @@ public class MainActivity extends AppCompatActivity {
         buttonDown = findViewById(R.id.buttonDown);
         buttonShare = findViewById(R.id.buttonShare);
 
-        // Starting at 0 Celsius degrees
-        temp.setCelsius(0);
-        refreshFields();
-        lastFocusedField = celsius;
-        buttonUp.setText("👆 C");
         buttonUp.setBackgroundColor(0x88FF0000);  // argb
-        buttonDown.setText("👇 C");
         buttonDown.setBackgroundColor(0x880044AA);  // argb
 
 
+        double initialCelsius = 0;
+
+        if (savedInstanceState != null) {
+            initialCelsius = savedInstanceState.getDouble("celsius", 0);
+            Toast.makeText(getApplicationContext(),"LOADED DATA\n"+initialCelsius+" C",
+                    Toast.LENGTH_LONG).show();
+        } else {
+            celsius.requestFocus();
+        }
+
+        temp = new Degree(initialCelsius);
+        fahrenheit.setText(temp.getFahrenheitToString());
+        kelvin.setText(temp.getKelvinToString());
+
+        refreshFields();
         setListeners();
     }
 
@@ -61,14 +66,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        this.buttonUp.setOnClickListener(createSpinnerListener(1));
-        this.buttonDown.setOnClickListener(createSpinnerListener(-1));
+        this.buttonUp.setOnClickListener(createUpDownListeners(1));
+        this.buttonDown.setOnClickListener(createUpDownListeners(-1));
 
 
         celsius.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                    lastFocusedField = celsius;
                     buttonUp.setText(R.string.up_celsius);
                     buttonDown.setText(R.string.down_celsius);
             }
@@ -76,7 +80,6 @@ public class MainActivity extends AppCompatActivity {
         fahrenheit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                    lastFocusedField = fahrenheit;
                     buttonUp.setText(R.string.up_fahrenheit);
                     buttonDown.setText(R.string.down_fahrenheit);
             }
@@ -84,7 +87,6 @@ public class MainActivity extends AppCompatActivity {
         kelvin.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                    lastFocusedField = kelvin;
                     buttonUp.setText(R.string.up_kelvin);
                     buttonDown.setText(R.string.down_kelvin);
             }
@@ -114,7 +116,6 @@ public class MainActivity extends AppCompatActivity {
                         kelvin.setText(temp.getKelvinToString());
                     };
                 }
-
             }
         });
 
@@ -143,8 +144,6 @@ public class MainActivity extends AppCompatActivity {
                     };
                 }
             }
-
-
         });
 
         this.kelvin.addTextChangedListener(new TextWatcher() {
@@ -173,21 +172,19 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-
     }
 
 
 
-    private View.OnClickListener createSpinnerListener(final int increment) {
+    private View.OnClickListener createUpDownListeners(final int increment) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                if (lastFocusedField ==  fahrenheit) {
+                if (getCurrentFocus() ==  fahrenheit) {
                     temp.setFahrenheit(temp.getFahrenheit()+increment);
                 }
-                else if (lastFocusedField ==  kelvin) {
+                else if (getCurrentFocus() ==  kelvin) {
                     temp.setKelvin(temp.getKelvin()+increment);
                 } else {
                     temp.setCelsius(temp.getCelsius()+increment);
@@ -196,6 +193,17 @@ public class MainActivity extends AppCompatActivity {
                 refreshFields();
             }
         };
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putDouble("celsius", temp.getCelsius());
+
+        Toast.makeText(getApplicationContext(),"Saved data" +
+                        "\nCelsius: "+outState.getDouble("celsius"),
+                Toast.LENGTH_LONG).show();
+
+        super.onSaveInstanceState(outState);
     }
 
     private void refreshFields() {

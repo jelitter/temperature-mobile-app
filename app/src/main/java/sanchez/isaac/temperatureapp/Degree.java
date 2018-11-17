@@ -1,6 +1,9 @@
 package sanchez.isaac.temperatureapp;
 
-public class Degree {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Degree  {
 
     public double celsius;
     public double fahrenheit;
@@ -8,7 +11,7 @@ public class Degree {
 
 
     public Degree(double celsius) {
-        this.celsius = celsius;
+        this.setCelsius(celsius);
     }
 
     public double getCelsius() {
@@ -48,5 +51,10 @@ public class Degree {
         this.kelvin = kelvin;
         this.celsius = kelvin - 273.15;
         this.fahrenheit = (kelvin -273.15) * 9/5 + 32;
+    }
+
+
+    public String toString() {
+        return getCelsiusToString() +" C, " + getKelvinToString() +" K, "+ getFahrenheitToString() +" F, " ;
     }
 }
