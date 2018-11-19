@@ -2,35 +2,32 @@ package sanchez.isaac.temperatureapp;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 public class ShareActivity extends AppCompatActivity {
 
-    String celsius = "", fahrenheit = "",kelvin = "";
+    Double celsius, fahrenheit, kelvin;
     TextView resultsCelsius, resultsFahrenheit, resultsKelvin, inputEmail;
     Button buttonBack, buttonSendEmail;
+    Degree temp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share);
 
-
+        // Getting temperature details saved from Main activityØ
         Bundle extras = getIntent().getExtras();
-        celsius = extras.getString("celsius");
-        fahrenheit = extras.getString("fahrenheit");
-        kelvin = extras.getString("kelvin");
-        Toast.makeText(getApplicationContext(),"Values are:" +
-                "\nCelsius: "+celsius+
-                "\nFahrenheit: "+fahrenheit+
-                "\nKelvin: "+kelvin,
-                Toast.LENGTH_LONG).show();
+        celsius = extras.getDouble("celsius", 0);
+
+        temp = new Degree(celsius);
 
 
         resultsCelsius = findViewById(R.id.resultsCelsius);
@@ -38,9 +35,9 @@ public class ShareActivity extends AppCompatActivity {
         resultsKelvin = findViewById(R.id.resultsKelvin);
         inputEmail = findViewById(R.id.inputEmail);
 
-        resultsCelsius.setText(celsius + "° C");
-        resultsFahrenheit.setText(fahrenheit + "° F");
-        resultsKelvin.setText(kelvin + "° K");
+        resultsCelsius.setText(temp.getCelsiusToString() + "° C");
+        resultsFahrenheit.setText(temp.getFahrenheitToString() + "° F");
+        resultsKelvin.setText(temp.getKelvinToString() + "° K");
 
         buttonBack = findViewById(R.id.buttonBack);
         buttonSendEmail = findViewById(R.id.buttonSendEmail);
@@ -49,8 +46,26 @@ public class ShareActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent mainIntent = new Intent(getApplicationContext(), MainActivity.class);
-                mainIntent.putExtra("result", "success!");
+                mainIntent.putExtra("celsius", temp.getCelsius());
                 startActivity(mainIntent);
+            }
+        });
+
+        this.inputEmail.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+
+            //
+            @Override
+            public void beforeTextChanged(CharSequence s, int start,
+                                          int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                buttonSendEmail.setEnabled(isValidEmail(s.toString()));
             }
         });
 
@@ -61,10 +76,10 @@ public class ShareActivity extends AppCompatActivity {
                 Intent emailIntent = new Intent(Intent.ACTION_SEND);
 
                 emailIntent.setData(Uri.parse("mailto:"))
-                    .setType("text/plain")
-                    .putExtra(Intent.EXTRA_EMAIL, new String[] { inputEmail.getText().toString() })
-                    .putExtra(Intent.EXTRA_SUBJECT, "🌡 Temperature results! (Isaac's Temperature Converter)")
-                    .putExtra(Intent.EXTRA_TEXT, buildBody());
+                        .setType("text/plain")
+                        .putExtra(Intent.EXTRA_EMAIL, new String[]{inputEmail.getText().toString()})
+                        .putExtra(Intent.EXTRA_SUBJECT, "🌡 Your temperature results!")
+                        .putExtra(Intent.EXTRA_TEXT, buildBody());
 
                 try {
                     // Send the email using default system app for email
@@ -78,12 +93,29 @@ public class ShareActivity extends AppCompatActivity {
                 }
             }
         });
+
+
+    }
+
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putDouble("celsius", celsius);
+        super.onSaveInstanceState(outState);
+    }
+
+    public final static boolean isValidEmail(CharSequence target) {
+        if (target == null)
+            return false;
+
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
     }
 
     String buildBody() {
         return "Your temperature results!\n" +
-                "\n" + celsius + "° C" +
-                "\n" + fahrenheit + "° F" +
-                "\n" + kelvin + "° K";
+                "\n" + temp.getCelsiusToString() + "° C" +
+                "\n" + temp.getFahrenheitToString() + "° F" +
+                "\n" + temp.getKelvinToString() + "° K" +
+                "\n\n" + "Isaac's Temperature Converter";
     }
 }

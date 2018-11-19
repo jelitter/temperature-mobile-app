@@ -1,22 +1,22 @@
 package sanchez.isaac.temperatureapp;
+
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.SoundEffectConstants;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.view.View;
 import android.widget.Toast;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    private Degree temp;
     EditText celsius, fahrenheit, kelvin;
     Button buttonUp, buttonDown, buttonShare;
-
-
+    private Degree temp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,30 +26,35 @@ public class MainActivity extends AppCompatActivity {
         celsius = findViewById(R.id.editCelsius);
         fahrenheit = findViewById(R.id.editFahrenheit);
         kelvin = findViewById(R.id.editKelvin);
-
         buttonUp = findViewById(R.id.buttonUp);
         buttonDown = findViewById(R.id.buttonDown);
         buttonShare = findViewById(R.id.buttonShare);
+//        buttonUp.setBackgroundColor(0x88FF0000);  // argb
+//        buttonDown.setBackgroundColor(0x880044AA);  // argb
 
-        buttonUp.setBackgroundColor(0x88FF0000);  // argb
-        buttonDown.setBackgroundColor(0x880044AA);  // argb
-
-
+        // Initial celsius value by default
         double initialCelsius = 0;
 
-        if (savedInstanceState != null) {
-            initialCelsius = savedInstanceState.getDouble("celsius", 0);
-            Toast.makeText(getApplicationContext(),"LOADED DATA\n"+initialCelsius+" C",
-                    Toast.LENGTH_LONG).show();
-        } else {
+        Bundle extras = getIntent().getExtras();
+
+        if (extras != null) {
+            // If we are coming from Share Activity, load the stored Celsius degrees
+            initialCelsius = extras.getDouble("celsius", 0);
             celsius.requestFocus();
+        } else {
+            if (savedInstanceState != null) {
+                // If no extras found, we check if there's a saved instance created upon device rotation
+                initialCelsius = savedInstanceState.getDouble("celsius", 0);
+                Toast.makeText(getApplicationContext(), "LOADED DATA\n" + initialCelsius + " C",
+                        Toast.LENGTH_LONG).show();
+            } else {
+                // This was a first activity launch, set focus on Celsius field by default
+                celsius.requestFocus();
+            }
         }
 
         temp = new Degree(initialCelsius);
-        fahrenheit.setText(temp.getFahrenheitToString());
-        kelvin.setText(temp.getKelvinToString());
-
-        refreshFields();
+        updateTextFields();
         setListeners();
     }
 
@@ -59,9 +64,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent shareIntent = new Intent(getApplicationContext(), ShareActivity.class);
-                shareIntent.putExtra("celsius", temp.getCelsiusToString());
-                shareIntent.putExtra("fahrenheit", temp.getFahrenheitToString());
-                shareIntent.putExtra("kelvin", temp.getKelvinToString());
+                shareIntent.putExtra("celsius", temp.getCelsius());
                 startActivity(shareIntent);
             }
         });
@@ -69,34 +72,37 @@ public class MainActivity extends AppCompatActivity {
         this.buttonUp.setOnClickListener(createUpDownListeners(1));
         this.buttonDown.setOnClickListener(createUpDownListeners(-1));
 
-
         celsius.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                    buttonUp.setText(R.string.up_celsius);
-                    buttonDown.setText(R.string.down_celsius);
+                buttonUp.setText(R.string.up_celsius);
+                buttonDown.setText(R.string.down_celsius);
             }
         });
+
         fahrenheit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                    buttonUp.setText(R.string.up_fahrenheit);
-                    buttonDown.setText(R.string.down_fahrenheit);
+                buttonUp.setText(R.string.up_fahrenheit);
+                buttonDown.setText(R.string.down_fahrenheit);
             }
         });
+
         kelvin.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                    buttonUp.setText(R.string.up_kelvin);
-                    buttonDown.setText(R.string.down_kelvin);
+                buttonUp.setText(R.string.up_kelvin);
+                buttonDown.setText(R.string.down_kelvin);
             }
         });
 
         this.celsius.addTextChangedListener(new TextWatcher() {
 
             @Override
-            public void afterTextChanged(Editable s) {}
-//
+            public void afterTextChanged(Editable s) {
+            }
+
+            //
             @Override
             public void beforeTextChanged(CharSequence s, int start,
                                           int count, int after) {
@@ -114,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
                         temp.setCelsius(Double.parseDouble(s.toString()));
                         fahrenheit.setText(temp.getFahrenheitToString());
                         kelvin.setText(temp.getKelvinToString());
-                    };
+                    }
                 }
             }
         });
@@ -122,7 +128,9 @@ public class MainActivity extends AppCompatActivity {
         this.fahrenheit.addTextChangedListener(new TextWatcher() {
 
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
+
             //
             @Override
             public void beforeTextChanged(CharSequence s, int start,
@@ -141,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
                         temp.setFahrenheit(Double.parseDouble(s.toString()));
                         celsius.setText(temp.getCelsiusToString());
                         kelvin.setText(temp.getKelvinToString());
-                    };
+                    }
                 }
             }
         });
@@ -149,7 +157,9 @@ public class MainActivity extends AppCompatActivity {
         this.kelvin.addTextChangedListener(new TextWatcher() {
 
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
+
             //
             @Override
             public void beforeTextChanged(CharSequence s, int start,
@@ -157,9 +167,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onTextChanged(CharSequence s, int start,
-                                      int before, int count) {
-
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (getCurrentFocus() == kelvin) {
                     if (s.toString().trim().equals("")) {
                         fahrenheit.setText("");
@@ -168,29 +176,28 @@ public class MainActivity extends AppCompatActivity {
                         temp.setKelvin(Double.parseDouble(s.toString()));
                         fahrenheit.setText(temp.getFahrenheitToString());
                         celsius.setText(temp.getCelsiusToString());
-                    };
+                    }
                 }
             }
         });
     }
-
-
 
     private View.OnClickListener createUpDownListeners(final int increment) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                if (getCurrentFocus() ==  fahrenheit) {
-                    temp.setFahrenheit(temp.getFahrenheit()+increment);
-                }
-                else if (getCurrentFocus() ==  kelvin) {
-                    temp.setKelvin(temp.getKelvin()+increment);
+                if (getCurrentFocus() == fahrenheit) {
+                    temp.setFahrenheit(temp.getFahrenheit() + increment);
+                } else if (getCurrentFocus() == kelvin) {
+                    temp.setKelvin(temp.getKelvin() + increment);
                 } else {
-                    temp.setCelsius(temp.getCelsius()+increment);
+                    temp.setCelsius(temp.getCelsius() + increment);
                 }
 
-                refreshFields();
+                getCurrentFocus() .playSoundEffect(SoundEffectConstants.CLICK);
+
+                updateTextFields();
             }
         };
     }
@@ -198,15 +205,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putDouble("celsius", temp.getCelsius());
-
-        Toast.makeText(getApplicationContext(),"Saved data" +
-                        "\nCelsius: "+outState.getDouble("celsius"),
-                Toast.LENGTH_LONG).show();
-
         super.onSaveInstanceState(outState);
     }
 
-    private void refreshFields() {
+    private void updateTextFields() {
         celsius.setText(temp.getCelsiusToString());
         fahrenheit.setText(temp.getFahrenheitToString());
         kelvin.setText(temp.getKelvinToString());
