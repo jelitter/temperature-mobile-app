@@ -1,8 +1,12 @@
-# Programming Mobile Devices Assignment 1
+### Programming Mobile Devices - Assignment 1
 
-### Overview
+# Temperature Converter
 
-> 1. Create yourownApp icon in 3 different resolutions (it doesn’t need to be beautiful!). Use Photoshop or gimp etc. **10 marks**
+_Isaac Sanchez, Nov-2018_
+
+---
+
+**1. Create yourownApp icon in 3 different resolutions (it doesn’t need to be beautiful!). Use Photoshop or gimp etc.**
 
 Icons created and included in the `mipmap` folders:
 
