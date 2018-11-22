@@ -41,6 +41,7 @@ public class ShareActivity extends AppCompatActivity {
 
         buttonBack = findViewById(R.id.buttonBack);
         buttonSendEmail = findViewById(R.id.buttonSendEmail);
+        buttonSendEmail.setEnabled(isValidEmail(""));
 
         this.buttonBack.setOnClickListener(new View.OnClickListener() {
             @Override
