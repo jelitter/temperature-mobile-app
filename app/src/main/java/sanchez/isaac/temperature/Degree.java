@@ -1,4 +1,4 @@
-package sanchez.isaac.temperatureapp;
+package sanchez.isaac.temperature;
 
 public class Degree {
 

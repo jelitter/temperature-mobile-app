@@ -1,4 +1,4 @@
-package sanchez.isaac.temperatureapp;
+package sanchez.isaac.temperature;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

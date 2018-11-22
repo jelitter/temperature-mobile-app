@@ -1,4 +1,4 @@
-package sanchez.isaac.temperatureapp;
+package sanchez.isaac.temperature;
 
 import org.junit.Test;
 
